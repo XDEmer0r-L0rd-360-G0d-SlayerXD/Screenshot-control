@@ -6,13 +6,15 @@ import numpy as np
 
 class Camera:
     def __init__(self):
+        print('init')
         self.grabber = d3dshot.create('numpy')
 
     def __enter__(self):
-        self.__init__()
-        return self.grabber
+        print('enter')
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        print('exit')
         del self.grabber
 
     def grab_to_numpy(self, corners):
@@ -46,26 +48,14 @@ class Camera:
 
 
 def test_image():
-    now = time.time()
-    d = d3dshot.create(capture_output='numpy')
-    num_test = 1
-    for a in range(num_test):
-        # print(a)
-        # a += 1
-        d.screenshot()
-    print(num_test / (time.time() - now), 'fps')
-
-
-def shot_part_to_numpy(left, top, right, bottom):
-    d = d3dshot.create(capture_output='numpy')
-    data = d.screenshot()
-    del d
-    print(data)
-    Image.fromarray(data).save('converted.png')
-    pass
+    with Camera() as c:
+        data = c.grab_to_numpy((500, 200, 1000, 500))
+        c.save_numpy_img(c.grab_vital_pixels(data, (50, 30)), 'with_test.png')
 
 
 def main():
+    test_image()
+    exit()
     time.sleep(1)
     pic = Camera()
     data = pic.grab_to_numpy((0, 0, 1500, 800))
@@ -74,8 +64,6 @@ def main():
     smaller = pic.grab_vital_pixels(data, (150, 80))
     print('smalled')
     pic.save_numpy_img(smaller, name='smaller.png')
-    exit()
-    test_image()
 
 
 if __name__ == '__main__':
