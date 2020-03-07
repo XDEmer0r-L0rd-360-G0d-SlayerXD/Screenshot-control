@@ -62,7 +62,6 @@ class Camera:
 def test_image():
     with Camera() as c:
         data = c.grab_to_numpy((500, 200, 1000, 500))
-        exit()
         c.save_numpy_img(c.grab_vital_pixels(data, (50, 30)), 'with_test.png')
 
 
