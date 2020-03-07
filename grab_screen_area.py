@@ -5,21 +5,33 @@ import numpy as np
 
 
 class Camera:
+    """Object designed to simplify partial screenshots and decrease setup and teardown. Also includes a few utils."""
     def __init__(self):
-        print('init')
         self.grabber = d3dshot.create('numpy')
 
     def __enter__(self):
-        print('enter')
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        print('exit')
         del self.grabber
 
     def grab_to_numpy(self, corners):
+        print('Deprecated. Only works with one region per Camera instance.')
         data = self.grabber.screenshot(region=corners)
-        return data
+        return data.copy()
+
+    def grab_regions_to_numpy(self, regions: list):
+        """
+        Converts a list of coordinate groups to separate images from full screenshot
+        :param regions: [(r1, t1, l1, b1}, (r2, t2, l2, b2), ...]
+        :return: all images in order
+        :rtype: list
+        """
+        full = self.grabber.screenshot().copy()
+        region_datas = []
+        for a in regions:
+            region_datas.append(full[a[1]:a[3], a[0]:a[2]])
+        return region_datas
 
     @staticmethod
     def save_numpy_img(data, name=None):
@@ -50,6 +62,7 @@ class Camera:
 def test_image():
     with Camera() as c:
         data = c.grab_to_numpy((500, 200, 1000, 500))
+        exit()
         c.save_numpy_img(c.grab_vital_pixels(data, (50, 30)), 'with_test.png')
 
 
